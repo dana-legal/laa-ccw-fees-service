@@ -1,0 +1,132 @@
+### LAA CCW Fees Service - API Examples
+### Base URL: http://localhost:8086
+
+### 1. Get Matter Codes for Family Law (FAM)
+GET http://localhost:8086/v1/matter-codes/FAM
+Accept: application/json
+
+###
+
+### 2. Get Matter Code 2 options for FAMA
+GET http://localhost:8086/v1/matter-codes/FAMA/matter-code-2
+Accept: application/json
+
+###
+
+### 3. Get Case Stages for Matter Codes
+GET http://localhost:8086/v1/case-stages
+Content-Type: application/json
+
+{
+  "matterCode1": "FAMA",
+  "matterCode2": "FPET"
+}
+
+###
+
+### 4. List Available Fees
+GET http://localhost:8086/v1/fees/list-available
+Content-Type: application/json
+
+{
+  "locationCode": "LDN",
+  "caseStage": "FPL01",
+  "matterCode1": "FAMA",
+  "matterCode2": "FPET"
+}
+
+###
+
+### 5. Calculate Fees - Simple (Only automatic fees)
+GET http://localhost:8086/v1/fees/calculate
+Content-Type: application/json
+
+{
+  "locationCode": "LDN",
+  "caseStage": "FPL01",
+  "matterCode1": "FAMA",
+  "matterCode2": "FPET"
+}
+
+###
+
+### 6. Calculate Fees - Immigration (WITHOUT optional fees)
+# Base immigration fee only - automatic fee
+GET http://localhost:8086/v1/fees/calculate
+Content-Type: application/json
+
+{
+  "locationCode": "NA",
+  "caseStage": "_IMM02",
+  "matterCode1": "IACF",
+  "matterCode2": "IASY"
+}
+
+###
+
+### 7. Calculate Fees - Immigration (WITH optional level codes)
+# levelCodes adds optional/per-unit fees:
+# Type O (Optional): just specify levelCode - uses fixed amount from DB
+# Type OU (Optional per Unit): specify levelCode + units - DB amount × units
+# Type OF (Optional Fixed): specify levelCode + fee - you provide the amount
+GET http://localhost:8086/v1/fees/calculate
+Content-Type: application/json
+
+{
+  "locationCode": "NA",
+  "caseStage": "_IMM02",
+  "matterCode1": "IACF",
+  "matterCode2": "IASY",
+  "levelCodes": [
+    {
+      "levelCode": "_IMORL",
+      "units": 2.0,
+      "comment": "OU: 2 oral CMR hearings × £166 = £332"
+    },
+    {
+      "levelCode": "_IMTEL",
+      "units": 1.0,
+      "comment": "OU: 1 telephone CMR hearing × £90 = £90"
+    },
+    {
+      "levelCode": "_IMSUH",
+      "comment": "O: Substantive hearing = £302 (fixed from DB)"
+    },
+    {
+      "levelCode": "_IMADJ",
+      "units": 1.0,
+      "comment": "OU: 1 adjourned hearing × £161 = £161"
+    },
+    {
+      "levelCode": "_IMJRF",
+      "fee": 85.50,
+      "comment": "OF: JR form filling - you specify actual cost = £85.50"
+    }
+  ]
+}
+
+###
+
+### 8. Create Invoice
+PUT http://localhost:8086/v1/invoices/create
+Content-Type: application/json
+
+{
+  "provider": "A Provider",
+  "office": "ABC Office",
+  "amount": 103.20
+}
+
+###
+
+### Health Check
+GET http://localhost:8086/actuator/health
+Accept: application/json
+
+###
+
+### Application Info
+GET http://localhost:8086/actuator/info
+Accept: application/json
+
+###

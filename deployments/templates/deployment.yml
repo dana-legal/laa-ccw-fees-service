@@ -18,7 +18,7 @@ spec:
         - name: laa-ccw-fees-service
           image: ${REGISTRY}/${REPOSITORY}:${IMAGE_TAG}
           ports:
-            - containerPort: 8085
+            - containerPort: 8086
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

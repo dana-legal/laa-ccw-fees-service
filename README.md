@@ -16,7 +16,92 @@ TODO
 - `docker compose up`
 
 ### Actuator Endpoints
-- http://localhost:8085/actuator
-- http://localhost:8085/actuator/health
-- http://localhost:8085/actuator/info
-- http://localhost:8085/actuator/metrics
+- http://localhost:8086/actuator
+- http://localhost:8086/actuator/health
+- http://localhost:8086/actuator/info
+- http://localhost:8086/actuator/metrics
+
+## Database Setup
+
+### Local Development
+For local development, the application uses an in-memory H2 database that is automatically seeded on startup:
+- **Schema**: `src/main/resources/ccw-database-schema.sql`
+- **Data**: `src/main/resources/ccw-database-data.sql`
+
+No manual setup is required - just run the application with the `local` profile.
+
+### Production Database Deployment
+The production environment uses PostgreSQL (RDS) and requires manual database setup. The application does **not** automatically create or seed the database in production.
+
+#### Prerequisites
+- Access to the production PostgreSQL database
+- Database credentials (DB_SERVER, DB_NAME, DB_USER, DB_PASSWORD)
+- PostgreSQL client (`psql`) installed
+
+#### Initial Setup
+
+1. **Connect to the PostgreSQL database:**
+   ```bash
+   psql -h <DB_SERVER> -U <DB_USER> -d <DB_NAME>
+   ```
+
+2. **Run the schema creation script:**
+   ```bash
+   psql -h <DB_SERVER> -U <DB_USER> -d <DB_NAME> -f src/main/resources/ccw-database-schema.sql
+   ```
+   
+   This will:
+   - Drop and recreate the `CCW` schema
+   - Create all tables, views, and constraints
+   - Set up the database structure
+
+3. **Run the data seeding script:**
+   ```bash
+   psql -h <DB_SERVER> -U <DB_USER> -d <DB_NAME> -f src/main/resources/ccw-database-data.sql
+   ```
+   
+   This will populate the database with:
+   - VAT rates
+   - Law types
+   - Matter codes
+   - Case stages
+   - Provider locations
+   - Level codes and fees
+   - Reference data
+
+#### Updating Production Data
+
+When schema or data changes are needed:
+
+1. **For schema changes:**
+   - Update `ccw-database-schema.sql`
+   - **Warning:** Running the schema script will drop the existing schema and all data
+   - Consider creating incremental migration scripts for production updates
+
+2. **For data updates:**
+   - Update `ccw-database-data.sql`
+   - Review the script to ensure it won't conflict with existing data
+   - Consider using `UPDATE` or `INSERT ... ON CONFLICT` statements for incremental updates
+
+#### Best Practices
+
+- **Always backup the database** before running schema changes
+- Test scripts in a non-production environment first
+- Consider implementing a migration tool (e.g., Flyway or Liquibase) for version-controlled database changes
+- Use transactions when running manual scripts to allow rollback if needed:
+  ```sql
+  BEGIN;
+  -- Run your script here
+  -- Review changes
+  COMMIT; -- or ROLLBACK if issues found
+  ```
+
+#### Environment Variables
+
+The application requires these environment variables to connect to PostgreSQL:
+- `DB_SERVER`: PostgreSQL server endpoint
+- `DB_NAME`: Database name
+- `DB_USER`: Database username
+- `DB_PASSWORD`: Database password
+
+These are configured in the Kubernetes deployment manifests.

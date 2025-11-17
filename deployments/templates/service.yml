@@ -9,5 +9,5 @@ spec:
     app: laa-ccw-fees-service # this should match the pod label in deployment.yml
   ports:
     - name: http
-      port: 8085
-      targetPort: 8085
+      port: 8086
+      targetPort: 8086

@@ -26,4 +26,4 @@ spec:
               service:
                 name: laa-ccw-fees-service-service # this should match the metadata.name in service.yml
                 port:
-                  number: 8085
+                  number: 8086
