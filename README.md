@@ -23,12 +23,42 @@ TODO
 
 ## Database Setup
 
-### Local Development
-For local development, the application uses an in-memory H2 database that is automatically seeded on startup:
-- **Schema**: `src/main/resources/ccw-database-schema.sql`
-- **Data**: `src/main/resources/ccw-database-data.sql`
+### Local Development with Docker
 
-No manual setup is required - just run the application with the `local` profile.
+The application is configured to use a PostgreSQL database on the `legallinx-network` Docker network.
+
+#### Prerequisites
+- Docker and Docker Compose installed
+- The `legallinx-network` Docker network must exist
+- A PostgreSQL container named `legallinx-postgres-db` running on that network
+
+#### Setup Steps
+
+1. **Create the database:**
+   ```bash
+   docker exec -it legallinx-postgres-db psql -U postgres -c "CREATE DATABASE ccw_fees;"
+   ```
+
+2. **Create the schema:**
+   ```bash
+   docker exec -i legallinx-postgres-db psql -U postgres -d ccw_fees < src/main/resources/ccw-database-schema.sql
+   ```
+
+3. **Seed the database:**
+   ```bash
+   docker exec -i legallinx-postgres-db psql -U postgres -d ccw_fees < src/main/resources/ccw-database-data.sql
+   ```
+
+4. **Start the application:**
+   ```bash
+   docker compose up
+   ```
+
+The application will connect to the PostgreSQL database using these credentials (configured in `docker-compose.yml`):
+- Database: `ccw_fees`
+- User: `postgres`
+- Password: `example`
+- Host: `legallinx-postgres-db:5432`
 
 ### Production Database Deployment
 The production environment uses PostgreSQL (RDS) and requires manual database setup. The application does **not** automatically create or seed the database in production.
